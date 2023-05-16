@@ -14,9 +14,23 @@ userRouter.get("/:id", (req, res) => {
     res.send(`Get user ${user}`);
 });
 
-userRouter.post("/create", async(req, res) => {
+userRouter.post("/create", async (req, res) => {
     console.log("Create user");
-    res.send("Create user");
+
+    const user = new userModel({
+        username: req.body.username,
+        password: req.body.password,
+        user_id: req.body.user_id
+    });
+
+    console.log(user);
+    
+    try {
+        await user.save();
+        res.send(user);
+    } catch (error) {
+        res.status(500).send(error);
+    }
 });
 
 userRouter.put("/update/:id", (req, res) => {

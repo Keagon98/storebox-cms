@@ -9,14 +9,12 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
-    user_id: {
+    token: {
         type: String,
         required: true
     },
 },
 { collection: "user" });
-
-userSchema.index({ user_id: 1 }, { unique: true });
 
 const userModel = mongoose.model("User", userSchema);
 
