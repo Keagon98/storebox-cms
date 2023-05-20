@@ -1,10 +1,15 @@
 import express from 'express';
+import bcryptjs from 'bcryptjs';
+import jsonwebtoken from 'jsonwebtoken';
+import dotenv from 'dotenv';
 
 import userRouter from './routes/users.js';
 import productRouter from './routes/products.js';
 import userModel from './models/User.js';
 
 const app = express();
+const jwt = jsonwebtoken;
+dotenv.config();
 
 app.use(express.json());
 
@@ -22,10 +27,6 @@ app.post("/register", async (req, res) => {
         // 1. Search the document for a username that matches the one being sent in the request body, then store that value in a variable
         // 2. Check, if (username does exist) then respond with a status code (409) and a message telling the user that the user they are creating already exists
 
-        // TODO's
-        // Password Encryption
-        // Setup JWT
-        // A couple more things I'll have to look up 😅
         
         const { username, password } = req.body;
 
@@ -39,6 +40,34 @@ app.post("/register", async (req, res) => {
             return res.status(409).send({ message: "User already exists" });
         } 
 
+        // TODO's
+        // Password Encryption
+        // Setup JWT
+        // A couple more things I'll have to look up 😅
+
+        const encryptedPassword = bcryptjs.hashSync(password, 12);
+
+        const user = new userModel({
+            username: username,
+            password: encryptedPassword
+        });
+
+        const token = jwt.sign(
+            { 
+                user_id: user._id, 
+                username: user.username
+            },
+            process.env.ACCESS_TOKEN_KEY,
+            {
+              expiresIn: "5h",
+            }
+        );
+
+        user.token = token;
+
+        await user.save();
+
+        res.status(201).send(user);
     } catch (error) {
         console.error(error);
     }    
